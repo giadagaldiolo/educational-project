@@ -16,8 +16,8 @@ public class Main {
 
         // Legge le preferenze
         Map<String, String> prefs = readPreferences(preferencesPath);
-        Path inputPath = Paths.get(prefs.getOrDefault("input_file", "imdb_top_1000.csv"));
-        Path outputPath = Paths.get(prefs.getOrDefault("output_file", "output.csv"));
+        Path inputPath = Paths.get(prefs.getOrDefault("input_file", "resources/imdb_top_1000.csv"));
+        Path outputPath = Paths.get(prefs.getOrDefault("output_file", "resources/output.csv"));
 //        System.out.println("File di input: " + inputPath);
 //        System.out.println("File di output: " + outputPath);
 
