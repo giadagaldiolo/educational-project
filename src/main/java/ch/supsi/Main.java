@@ -18,12 +18,9 @@ public class Main {
         Map<String, String> prefs = readPreferences(preferencesPath);
         Path inputPath = Paths.get(prefs.getOrDefault("input_file", "imdb_top_1000.csv"));
         Path outputPath = Paths.get(prefs.getOrDefault("output_file", "output.csv"));
+//        System.out.println("File di input: " + inputPath);
+//        System.out.println("File di output: " + outputPath);
 
-        System.out.println("File di input: " + inputPath);
-        System.out.println("File di output: " + outputPath);
-
-        // ok
-        // TODO: possiamo ignorare i campi che non ci servono?
         List<String> seriesTitles = new ArrayList<>();
         List<Integer> releaseYears = new ArrayList<>();
         List<Integer> runtimes = new ArrayList<>();
@@ -39,12 +36,12 @@ public class Main {
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1); // -1 per mantenere i campi vuoti
 
-                if (fields.length < 16) continue; // Verifica che ci siano abbastanza colonne
+                if (fields.length != 16) continue; // Verifica che ci siano abbastanza colonne
 
                 seriesTitles.add(fields[1]);
-                releaseYears.add(parseInt(fields[2]));
+                releaseYears.add(Integer.parseInt(fields[2].trim()));
                 runtimes.add(parseRuntime(fields[4]));
-                imdbRatings.add(parseDouble(fields[6]));
+                imdbRatings.add(Double.parseDouble(fields[6]));
                 directors.add(fields[9]);
                 stars.add(fields[10]);
                 stars.add(fields[11]);
@@ -125,30 +122,6 @@ public class Main {
             System.err.println("Errore nella lettura delle preferenze: " + e.getMessage());
         }
         return preferences;
-    }
-
-    private static int parseInt(String s) {
-        try {
-            return Integer.parseInt(s.trim());
-        } catch (NumberFormatException e) {
-            return -1; // Valore di default
-        }
-    }
-
-    private static double parseDouble(String s) {
-        try {
-            return Double.parseDouble(s.trim());
-        } catch (NumberFormatException e) {
-            return -1.0;
-        }
-    }
-
-    private static long parseLong(String s) {
-        try {
-            return Long.parseLong(s.trim().replace(",", ""));
-        } catch (NumberFormatException e) {
-            return -1;
-        }
     }
 
     private static int parseRuntime(String s) {
