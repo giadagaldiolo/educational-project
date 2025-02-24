@@ -22,21 +22,14 @@ public class Main {
         System.out.println("File di input: " + inputPath);
         System.out.println("File di output: " + outputPath);
 
-
+        // ok
         // TODO: possiamo ignorare i campi che non ci servono?
-        List<String> posterLinks = new ArrayList<>();
         List<String> seriesTitles = new ArrayList<>();
         List<Integer> releaseYears = new ArrayList<>();
-        List<String> certificates = new ArrayList<>();
         List<Integer> runtimes = new ArrayList<>();
-        List<String> genres = new ArrayList<>();
         List<Double> imdbRatings = new ArrayList<>();
-        List<String> overviews = new ArrayList<>();
-        List<Integer> metaScores = new ArrayList<>();
         List<String> directors = new ArrayList<>();
         List<String> stars = new ArrayList<>();
-        List<Long> noOfVotes = new ArrayList<>();
-        List<String> gross = new ArrayList<>();
 
         String line;
 
@@ -48,22 +41,15 @@ public class Main {
 
                 if (fields.length < 16) continue; // Verifica che ci siano abbastanza colonne
 
-                posterLinks.add(fields[0]);
                 seriesTitles.add(fields[1]);
                 releaseYears.add(parseInt(fields[2]));
-                certificates.add(fields[3]);
                 runtimes.add(parseRuntime(fields[4]));
-                genres.add(fields[5]);
                 imdbRatings.add(parseDouble(fields[6]));
-                overviews.add(fields[7]);
-                metaScores.add(parseInt(fields[8]));
                 directors.add(fields[9]);
                 stars.add(fields[10]);
                 stars.add(fields[11]);
                 stars.add(fields[12]);
                 stars.add(fields[13]);
-                noOfVotes.add(parseLong(fields[14]));
-                gross.add(fields[15]);
             }
         } catch (IOException e) {
             System.err.println("Errore nella lettura del file: " + e.getMessage());
@@ -78,7 +64,6 @@ public class Main {
                         .mapToInt(Integer::intValue).average().orElse(0);
 
 
-        System.out.println("poster" + seriesTitles);
         // best director (media IMDb più alta)
         String bestDirector = directors.stream()
                 .distinct()
