@@ -50,7 +50,6 @@ public class Main {
             }
         } catch (IOException e) {
             System.err.println("Errore nella lettura del file: " + e.getMessage());
-            e.printStackTrace();
         }
 
         // total number of movies
@@ -92,7 +91,6 @@ public class Main {
             writer.write("Most Productive Year," + mostProductiveYear + "\n");
         } catch (IOException e) {
             System.err.println("Errore nella scrittura del file: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
