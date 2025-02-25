@@ -14,6 +14,8 @@ import static java.lang.Integer.parseInt;
 public class Main {
     public static void main(String[] args) {
 
+        //TODO: usa la classe Preferencies
+
         // Percorso del file di preferenze
         Path preferencesPath = Paths.get("src", "main", "resources", "preferences.txt"); // Uso di Paths.get() per garantire compatibilità con Windows, Mac e Linux.
 
@@ -27,6 +29,8 @@ public class Main {
         System.out.println("preferences file absolute path: " + preferencesPath.toAbsolutePath());
         System.out.println("Input file absolute path: " + inputPath.toAbsolutePath());
         System.out.println("Output file absolute path: " + outputPath.toAbsolutePath());
+
+        //TODO: leggi file in una classe separata
 
         List<Entry> entries = new ArrayList<>();
         String line;
@@ -52,6 +56,8 @@ public class Main {
             System.err.println("Errore nella lettura del file: " + e.getMessage());
             e.printStackTrace();
         }
+
+        //TODO: classe statistics
 
         // total number of movies
         int totalMovies = entries.size();
@@ -93,6 +99,8 @@ public class Main {
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(0);
+
+        //TODO: scrvi risultati in una classe separata
 
         //Scrittura risultati
         try (BufferedWriter writer = Files.newBufferedWriter(outputPath, StandardCharsets.UTF_8)) {

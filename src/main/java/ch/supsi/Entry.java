@@ -3,6 +3,7 @@ package ch.supsi;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO: rendila un record
 public class Entry {
     private String seriesTitle;
     private int releaseYear;
