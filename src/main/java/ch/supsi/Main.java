@@ -8,6 +8,9 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.lang.Double.parseDouble;
+import static java.lang.Integer.parseInt;
+
 public class Main {
     public static void main(String[] args) {
 
@@ -21,13 +24,11 @@ public class Main {
 //        System.out.println("File di input: " + inputPath);
 //        System.out.println("File di output: " + outputPath);
 
-        List<String> seriesTitles = new ArrayList<>();
-        List<Integer> releaseYears = new ArrayList<>();
-        List<Integer> runtimes = new ArrayList<>();
-        List<Double> imdbRatings = new ArrayList<>();
-        List<String> directors = new ArrayList<>();
-        List<String> stars = new ArrayList<>();
+        System.out.println("preferences file absolute path: " + preferencesPath.toAbsolutePath());
+        System.out.println("Input file absolute path: " + inputPath.toAbsolutePath());
+        System.out.println("Output file absolute path: " + outputPath.toAbsolutePath());
 
+        List<Entry> entries = new ArrayList<>();
         String line;
 
         try (BufferedReader br = Files.newBufferedReader(inputPath, StandardCharsets.UTF_8)) { // Specifica UTF-8 per evitare problemi con caratteri speciali tra OS diversi.
@@ -36,37 +37,48 @@ public class Main {
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1); // -1 per mantenere i campi vuoti
 
-                if (fields.length != 16) continue; // Verifica che ci siano abbastanza colonne
+                if (fields.length < 16) continue; // Verifica che ci siano abbastanza colonne
 
-                seriesTitles.add(fields[1]);
-                releaseYears.add(Integer.parseInt(fields[2].trim()));
-                runtimes.add(parseRuntime(fields[4]));
-                imdbRatings.add(Double.parseDouble(fields[6]));
-                directors.add(fields[9]);
+                List<String> stars = new ArrayList<>();
                 stars.add(fields[10]);
                 stars.add(fields[11]);
                 stars.add(fields[12]);
                 stars.add(fields[13]);
+
+                entries.add(new Entry(fields[1],parseInt(fields[2]),parseRuntime(fields[4]),parseDouble(fields[6]),fields[9], stars));
+
             }
         } catch (IOException e) {
             System.err.println("Errore nella lettura del file: " + e.getMessage());
+            e.printStackTrace();
         }
 
         // total number of movies
-        int totalMovies = seriesTitles.size();
+        int totalMovies = entries.size();
 
         // average movies run-time
-        double averageRunTime = runtimes.stream()
-                        .mapToInt(Integer::intValue).average().orElse(0);
+        double averageRunTime = entries.stream()
+                .map(Entry::getRuntime)
+                .mapToInt(Integer::intValue)
+                .average()
+                .orElse(0);
 
 
         // best director (media IMDb più alta)
-        String bestDirector = directors.stream()
+        List<String> directors = entries.stream()
+                .map(Entry::getDirector).toList();
+        List<Double> imdbRatings = entries.stream()
+                .map(Entry::getImdbRating).toList();
+
+        String bestDirector = entries.stream()
+                .map(Entry::getDirector)
                 .distinct()
                 .max(Comparator.comparingDouble(director -> getDirectorAverageRating(director, directors, imdbRatings))).orElse("Null");
 
+
         // most present actor/actress
-        String mostPresentActor = stars.stream()
+        String mostPresentActor = entries.stream()
+                .flatMap(entry -> entry.getStars().stream())
                 .collect(Collectors.groupingBy(star -> star, Collectors.counting()))
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
@@ -74,7 +86,8 @@ public class Main {
                 .orElse("Null");
 
         // most productive year
-        int mostProductiveYear = releaseYears.stream()
+        int mostProductiveYear = entries.stream()
+                .map(Entry::getReleaseYear)
                 .collect(Collectors.groupingBy(year -> year, Collectors.counting()))
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
@@ -108,7 +121,7 @@ public class Main {
 
     public static Map<String, String> readPreferences(Path filePath) {
         Map<String, String> preferences = new HashMap<>();
-        try (BufferedReader br = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(filePath)) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split("=", 2);
@@ -124,7 +137,7 @@ public class Main {
 
     private static int parseRuntime(String s) {
         try {
-            return Integer.parseInt(s.replace(" min", "").trim());
+            return parseInt(s.replace(" min", "").trim());
         } catch (NumberFormatException e) {
             return -1;
         }
