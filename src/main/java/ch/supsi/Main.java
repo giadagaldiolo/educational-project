@@ -16,12 +16,13 @@ public class Main {
 
 
         //TODO: usa la classe Preferencies
+        //TODO: scrivi se il file di output esiste già o viene creato ora
 
         // Percorso del file di preferenze
         Path preferencesPath = Paths.get("src", "main", "resources", "preferences.txt"); // Uso di Paths.get() per garantire compatibilità con Windows, Mac e Linux.
 
         // Legge le preferenze
-        Map<String, String> prefs = readPreferences(preferencesPath);
+        Map<String, String> prefs = FileHandler.readPreferences(preferencesPath);
         Path inputPath = Paths.get(prefs.getOrDefault("input_file", "resources/imdb_top_1000.csv"));
         Path outputPath = Paths.get(prefs.getOrDefault("output_file", "resources/output.csv"));
 //        System.out.println("File di input: " + inputPath);
@@ -31,32 +32,8 @@ public class Main {
         System.out.println("Input file absolute path: " + inputPath.toAbsolutePath());
         System.out.println("Output file absolute path: " + outputPath.toAbsolutePath());
 
-        //TODO: leggi file in una classe separata
-
-        List<Entry> entries = new ArrayList<>();
-        String line;
-
-        try (BufferedReader br = Files.newBufferedReader(inputPath, StandardCharsets.UTF_8)) { // Specifica UTF-8 per evitare problemi con caratteri speciali tra OS diversi.
-            br.readLine(); // Salta l'intestazione
-
-            while ((line = br.readLine()) != null) {
-                String[] fields = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1); // -1 per mantenere i campi vuoti
-
-                if (fields.length < 16) continue; // Verifica che ci siano abbastanza colonne
-
-                entries.add(new Entry(
-                        fields[1],
-                        parseInt(fields[2]),
-                        parseRuntime(fields[4]),
-                        parseDouble(fields[6]),
-                        fields[9],
-                        List.of(fields[10], fields[11], fields[12], fields[13])
-                ));
-            }
-        } catch (IOException e) {
-            System.err.println("Errore nella lettura del file: " + e.getMessage());
-            e.printStackTrace();
-        }
+        // Lettura file
+        List<Entry> entries = FileHandler.readEntries(inputPath);
 
         //Calcola statistiche
         int totalMovies = Statistics.totalMovies(entries);
@@ -65,44 +42,7 @@ public class Main {
         String mostPresentActor = Statistics.mostPresentActor(entries);
         int mostProductiveYear = Statistics.mostProductiveYear(entries);
 
-        //TODO: scrvi risultati in una classe separata
-
-        //Scrittura risultati
-        try (BufferedWriter writer = Files.newBufferedWriter(outputPath, StandardCharsets.UTF_8)) {
-            writer.write("Statistic,Value\n");
-            writer.write("Total Movies," + totalMovies + "\n");
-            writer.write("Average Runtime," + averageRunTime + " min\n");
-            writer.write("Best Director," + bestDirector + "\n");
-            writer.write("Most Present Actor," + mostPresentActor + "\n");
-            writer.write("Most Productive Year," + mostProductiveYear + "\n");
-        } catch (IOException e) {
-            System.err.println("Errore nella scrittura del file: " + e.getMessage());
-        }
-    }
-
-
-
-    public static Map<String, String> readPreferences(Path filePath) {
-        Map<String, String> preferences = new HashMap<>();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(filePath)) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split("=", 2);
-                if (parts.length == 2) {
-                    preferences.put(parts[0].trim(), parts[1].trim());
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Errore nella lettura delle preferenze: " + e.getMessage());
-        }
-        return preferences;
-    }
-
-    private static int parseRuntime(String s) {
-        try {
-            return parseInt(s.replace(" min", "").trim());
-        } catch (NumberFormatException e) {
-            return -1;
-        }
+        // Scrittura risultati
+        FileHandler.writeStatistics(outputPath, totalMovies, averageRunTime, bestDirector, mostPresentActor, mostProductiveYear);
     }
 }
