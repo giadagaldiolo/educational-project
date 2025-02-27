@@ -14,6 +14,7 @@ import static java.lang.Integer.parseInt;
 public class Main {
     public static void main(String[] args) {
 
+
         //TODO: usa la classe Preferencies
 
         // Percorso del file di preferenze
@@ -43,14 +44,14 @@ public class Main {
 
                 if (fields.length < 16) continue; // Verifica che ci siano abbastanza colonne
 
-                List<String> stars = new ArrayList<>();
-                stars.add(fields[10]);
-                stars.add(fields[11]);
-                stars.add(fields[12]);
-                stars.add(fields[13]);
-
-                entries.add(new Entry(fields[1],parseInt(fields[2]),parseRuntime(fields[4]),parseDouble(fields[6]),fields[9], stars));
-
+                entries.add(new Entry(
+                        fields[1],
+                        parseInt(fields[2]),
+                        parseRuntime(fields[4]),
+                        parseDouble(fields[6]),
+                        fields[9],
+                        List.of(fields[10], fields[11], fields[12], fields[13])
+                ));
             }
         } catch (IOException e) {
             System.err.println("Errore nella lettura del file: " + e.getMessage());
@@ -64,7 +65,7 @@ public class Main {
 
         // average movies run-time
         double averageRunTime = entries.stream()
-                .map(Entry::getRuntime)
+                .map(Entry::runtime)
                 .mapToInt(Integer::intValue)
                 .average()
                 .orElse(0);
@@ -72,19 +73,19 @@ public class Main {
 
         // best director (media IMDb più alta)
         List<String> directors = entries.stream()
-                .map(Entry::getDirector).toList();
+                .map(Entry::director).toList();
         List<Double> imdbRatings = entries.stream()
-                .map(Entry::getImdbRating).toList();
+                .map(Entry::imdbRating).toList();
 
         String bestDirector = entries.stream()
-                .map(Entry::getDirector)
+                .map(Entry::director)
                 .distinct()
                 .max(Comparator.comparingDouble(director -> getDirectorAverageRating(director, directors, imdbRatings))).orElse("Null");
 
 
         // most present actor/actress
         String mostPresentActor = entries.stream()
-                .flatMap(entry -> entry.getStars().stream())
+                .flatMap(entry -> entry.stars().stream())
                 .collect(Collectors.groupingBy(star -> star, Collectors.counting()))
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
@@ -93,7 +94,7 @@ public class Main {
 
         // most productive year
         int mostProductiveYear = entries.stream()
-                .map(Entry::getReleaseYear)
+                .map(Entry::releaseYear)
                 .collect(Collectors.groupingBy(year -> year, Collectors.counting()))
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
