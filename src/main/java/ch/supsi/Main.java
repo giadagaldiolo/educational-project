@@ -58,48 +58,12 @@ public class Main {
             e.printStackTrace();
         }
 
-        //TODO: classe statistics
-
-        // total number of movies
-        int totalMovies = entries.size();
-
-        // average movies run-time
-        double averageRunTime = entries.stream()
-                .map(Entry::runtime)
-                .mapToInt(Integer::intValue)
-                .average()
-                .orElse(0);
-
-
-        // best director (media IMDb più alta)
-        List<String> directors = entries.stream()
-                .map(Entry::director).toList();
-        List<Double> imdbRatings = entries.stream()
-                .map(Entry::imdbRating).toList();
-
-        String bestDirector = entries.stream()
-                .map(Entry::director)
-                .distinct()
-                .max(Comparator.comparingDouble(director -> getDirectorAverageRating(director, directors, imdbRatings))).orElse("Null");
-
-
-        // most present actor/actress
-        String mostPresentActor = entries.stream()
-                .flatMap(entry -> entry.stars().stream())
-                .collect(Collectors.groupingBy(star -> star, Collectors.counting()))
-                .entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElse("Null");
-
-        // most productive year
-        int mostProductiveYear = entries.stream()
-                .map(Entry::releaseYear)
-                .collect(Collectors.groupingBy(year -> year, Collectors.counting()))
-                .entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElse(0);
+        //Calcola statistiche
+        int totalMovies = Statistics.totalMovies(entries);
+        double averageRunTime = Statistics.averageRunTime(entries);
+        String bestDirector = Statistics.bestDirector(entries);
+        String mostPresentActor = Statistics.mostPresentActor(entries);
+        int mostProductiveYear = Statistics.mostProductiveYear(entries);
 
         //TODO: scrvi risultati in una classe separata
 
@@ -116,17 +80,7 @@ public class Main {
         }
     }
 
-    private static double getDirectorAverageRating(String director, List<String> directors, List<Double> ratings) {
-        double sum = 0;
-        int count = 0;
-        for (int i = 0; i < directors.size(); i++) {
-            if (directors.get(i).equals(director) && ratings.get(i) > 0) {
-                sum += ratings.get(i);
-                count++;
-            }
-        }
-        return count > 0 ? sum / count : 0;
-    }
+
 
     public static Map<String, String> readPreferences(Path filePath) {
         Map<String, String> preferences = new HashMap<>();
