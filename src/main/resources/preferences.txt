@@ -1,2 +1,0 @@
-input_file=src/main/resources/imdb_top_1000.csv
-output_file=src/main/resources/output.csv
