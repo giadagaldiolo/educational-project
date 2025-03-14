@@ -1,8 +1,10 @@
 package ch.supsi;
 
+import javax.json.*;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,16 +28,15 @@ public class UserPreferences {
     }
 
     private static void loadPreferences() {
-        try {
-            if (Files.exists(PREFERENCES_FILE)) {
-                // Legge il JSON come stringa
-                String content = Files.readString(PREFERENCES_FILE);
-                preferences = parseJson(content);
-            } else {
+        if (Files.exists(PREFERENCES_FILE)) {
+            try (InputStream is = Files.newInputStream(PREFERENCES_FILE);
+                 JsonReader reader = Json.createReader(is)) {
+                preferences = parseJson(reader.readObject());
+            } catch (IOException e) {
+                System.err.println("Errore nella lettura delle preferenze: " + e.getMessage());
                 createDefaultPreferences();
             }
-        } catch (IOException e) {
-            System.err.println("Errore nella lettura delle preferenze: " + e.getMessage());
+        } else {
             createDefaultPreferences();
         }
     }
@@ -54,8 +55,9 @@ public class UserPreferences {
     }
 
     private static void savePreferences() {
-        try (BufferedWriter writer = Files.newBufferedWriter(PREFERENCES_FILE)) {
-            writer.write(toJson(preferences)); // Scrive il JSON nel file
+        try (OutputStream os = Files.newOutputStream(PREFERENCES_FILE);
+             JsonWriter writer = Json.createWriter(os)) {
+            writer.writeObject(toJson(preferences));
         } catch (IOException e) {
             System.err.println("Errore nella scrittura delle preferenze: " + e.getMessage());
         }
@@ -63,7 +65,6 @@ public class UserPreferences {
 
     public static String getInputFilePath() {
         Path inputPath = DIRECTORY_PATH.resolve("imdb_top_1000.csv");
-        System.out.println("prova: " + inputPath);
         return preferences.getOrDefault("input_file", inputPath.toString());
     }
 
@@ -73,27 +74,20 @@ public class UserPreferences {
     }
 
     // Metodo per convertire una stringa JSON in una Map<String, String>
-    private static Map<String, String> parseJson(String json) {
+    private static Map<String, String> parseJson(JsonObject jsonObject) {
         Map<String, String> map = new HashMap<>();
-        json = json.trim().replaceAll("[{}\"]", ""); // Rimuove { } e "
-        String[] pairs = json.split(",");
-        for (String pair : pairs) {
-            String[] keyValue = pair.split(":");
-            if (keyValue.length == 2) {
-                map.put(keyValue[0].trim(), keyValue[1].trim());
-            }
+        for (String key : jsonObject.keySet()) {
+            map.put(key, jsonObject.getString(key, ""));
         }
         return map;
     }
 
-    // Metodo per convertire una Map<String, String> in formato JSON
-    private static String toJson(Map<String, String> map) {
-        StringBuilder json = new StringBuilder("{\n");
+
+    private static JsonObject toJson(Map<String, String> map) {
+        JsonObjectBuilder builder = Json.createObjectBuilder();
         for (Map.Entry<String, String> entry : map.entrySet()) {
-            json.append("    \"").append(entry.getKey()).append("\": \"").append(entry.getValue()).append("\",\n");
+            builder.add(entry.getKey(), entry.getValue());
         }
-        if (!map.isEmpty()) json.setLength(json.length() - 2); // Rimuove l'ultima virgola
-        json.append("\n}");
-        return json.toString();
+        return builder.build();
     }
 }
