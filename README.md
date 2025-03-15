@@ -21,7 +21,7 @@ This project involves developing a software product that processes movie metadat
 
 ## 📅 Timeline
 - **Start Date:** February 17, 2025
-- **End Date:** March 24, 2025
+- **End Date:** March 17, 2025
 
 ## 👥 Team Members
 - **Giada Galdiolo**
