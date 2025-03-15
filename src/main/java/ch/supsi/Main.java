@@ -1,35 +1,27 @@
 package ch.supsi;
 
-import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        //TODO: metti commenti e traduci quelli esistenti in inglese
 
+        // Get the input and output file paths from UserPreferences and convert them to absolute paths if they are not
+        Path inputPath = Paths.get(UserPreferences.getInputFilePath());
+        Path outputPath = Paths.get(UserPreferences.getOutputFilePath());
 
-        // Percorso del file di preferenze
-        System.out.println("prova" + Paths.get(UserPreferences.getInputFilePath()));
-        Path inputPath = Paths.get(UserPreferences.getInputFilePath()).toAbsolutePath();
-        Path outputPath = Paths.get(UserPreferences.getOutputFilePath()).toAbsolutePath();
-
-        System.out.println("Input file absolute path: " + inputPath);
-        System.out.println("Output file absolute path: " + outputPath);
-
-
-        // Lettura file
+        // Read the movie entries from the input CSV file
         List<Entry> entries = FileHandler.readEntries(inputPath);
 
-        //Calcola statistiche
-        int totalMovies = Statistics.totalMovies(entries);
-        double averageRunTime = Statistics.averageRunTime(entries);
-        String bestDirector = Statistics.bestDirector(entries);
-        String mostPresentActor = Statistics.mostPresentActor(entries);
-        int mostProductiveYear = Statistics.mostProductiveYear(entries);
+        // Calculate various statistics based on the movie entries
+        int totalMovies = Statistics.totalMovies(entries); // Total number of movies
+        double averageRunTime = Statistics.averageRunTime(entries); // Average runtime of movies
+        String bestDirector = Statistics.bestDirector(entries); // Director with the best movies
+        String mostPresentActor = Statistics.mostPresentActor(entries); // Actor appearing most often in the movies
+        int mostProductiveYear = Statistics.mostProductiveYear(entries); // Year with the most movie releases
 
-        // Scrittura risultati
+        // Write the calculated statistics to the output CSV file
         FileHandler.writeStatistics(outputPath, totalMovies, averageRunTime, bestDirector, mostPresentActor, mostProductiveYear);
     }
 }
