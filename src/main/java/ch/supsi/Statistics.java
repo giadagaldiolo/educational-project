@@ -7,12 +7,12 @@ import java.util.stream.Collectors;
 
 public class Statistics {
 
-    // total number of movies
+    // Calculates the total number of movies
     public static int totalMovies(List<Entry> entries) {
-        return entries.size();
+        return entries.size(); // Simply return the size of the entries list
     }
 
-    // average movies run-time
+    // Calculates the average movies run-time
     public static double averageRunTime(List<Entry> entries) {
         return entries.stream()
                 .map(Entry::runtime)
@@ -22,19 +22,22 @@ public class Statistics {
     }
 
 
-    // best director (media IMDb più alta)
+    // Calculates the best director based on the highest average IMDb rating
     public static String bestDirector(List<Entry> entries) {
+        // Create lists of directors and IMDb ratings
         List<String> directors = entries.stream().map(Entry::director).toList();
         List<Double> imdbRatings = entries.stream().map(Entry::imdbRating).toList();
 
+        // Find the director with the highest average IMDb rating
         return entries.stream()
                 .map(Entry::director)
                 .distinct()
-                .max(Comparator.comparingDouble(director -> getDirectorAverageRating(director, directors, imdbRatings))).orElse("Null");
+                .max(Comparator.comparingDouble(director -> getDirectorAverageRating(director, directors, imdbRatings)))
+                .orElse("Null");
     }
 
 
-    // most present actor/actress
+    // Finds the most present actor/actress across all movies
     public static String mostPresentActor(List<Entry> entries) {
         return entries.stream()
                 .flatMap(entry -> entry.stars().stream())
@@ -45,7 +48,7 @@ public class Statistics {
                 .orElse("Null");
     }
 
-    // most productive year
+    // Calculates the most productive year
     public static int mostProductiveYear(List<Entry> entries) {
         return entries.stream()
                 .map(Entry::releaseYear)
@@ -56,16 +59,20 @@ public class Statistics {
                 .orElse(0);
     }
 
-
+    // Helper method to calculate the average IMDb rating for a director
     private static double getDirectorAverageRating(String director, List<String> directors, List<Double> ratings) {
         double sum = 0;
         int count = 0;
+
+        // Loop through the directors and ratings to calculate the sum and count
         for (int i = 0; i < directors.size(); i++) {
             if (directors.get(i).equals(director) && ratings.get(i) > 0) {
-                sum += ratings.get(i);
+                sum += ratings.get(i); // Add the rating if it is greater than 0
                 count++;
             }
         }
+
+        // Return the average rating or 0 if no valid ratings were found
         return count > 0 ? sum / count : 0;
     }
 }
