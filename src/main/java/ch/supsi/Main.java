@@ -11,10 +11,10 @@ public class Main {
 
 
         // Percorso del file di preferenze
+        System.out.println("prova" + Paths.get(UserPreferences.getInputFilePath()));
         Path inputPath = Paths.get(UserPreferences.getInputFilePath()).toAbsolutePath();
         Path outputPath = Paths.get(UserPreferences.getOutputFilePath()).toAbsolutePath();
 
-        System.out.println("Preferences file absolute path: " + UserPreferences.PREFERENCES_FILE);
         System.out.println("Input file absolute path: " + inputPath);
         System.out.println("Output file absolute path: " + outputPath);
 

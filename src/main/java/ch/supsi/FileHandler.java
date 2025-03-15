@@ -1,6 +1,8 @@
 package ch.supsi;
 
 
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,7 +23,7 @@ public class FileHandler {
     public static List<Entry> readEntries(Path inputPath) {
         List<Entry> entries = new ArrayList<>();
 
-        try (CSVReader reader = new CSVReader(Files.newBufferedReader(inputPath, StandardCharsets.UTF_8))) {
+        try (CSVReader reader = new CSVReader(new FileReader(inputPath.toFile()))) {
             reader.readNext(); // Salta l'intestazione
             String[] fields;
 
@@ -53,7 +55,7 @@ public class FileHandler {
             Files.createDirectories(outputPath.getParent());
             boolean fileExists = Files.exists(outputPath);
 
-            try (CSVWriter writer = new CSVWriter(Files.newBufferedWriter(outputPath, StandardCharsets.UTF_8))) {
+            try (CSVWriter writer = new CSVWriter(new FileWriter(outputPath.toFile()))) {
                 writer.writeNext(new String[]{"Statistic", "Value"}); // Header
                 writer.writeNext(new String[]{"Total Movies", String.valueOf(totalMovies)});
                 writer.writeNext(new String[]{"Average Runtime", averageRunTime + " min"});
